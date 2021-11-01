@@ -61,7 +61,7 @@ struct dictionary_automaton {
     }
 
     vertex* go(vertex* v, char ch) {
-        if (ch <= 'a' || ch >= 'z') {
+        if (ch < 'a' || ch > 'z') {
             return root;
         }
 
