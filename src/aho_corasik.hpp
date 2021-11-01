@@ -85,7 +85,7 @@ vector<size_t> aho_corasik_search(const string& text, dictionary_automaton dicti
     for (size_t i = 0; i < text.length(); i++) {
         v = dictionary.go(v, text[i]);
         if (v->leaf) {
-            entries.push_back(i - v->len);
+            entries.push_back(i - v->len + 1);
         }
     }
     return entries;
