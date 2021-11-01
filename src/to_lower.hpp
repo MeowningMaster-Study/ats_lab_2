@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+using namespace std;
 
 char to_lower(char ch) {
     if (ch <= 'Z' && ch >= 'A') {
