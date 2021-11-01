@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 
-vector<size_t> dumb_search(const string& text, const vector<string>& dictionary) {
+vector<size_t> dumb_search(string& text, vector<string>& dictionary) {
     vector<size_t> entries;
     for (string word : dictionary) {
         size_t i = 0;
