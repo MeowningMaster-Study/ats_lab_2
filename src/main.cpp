@@ -10,7 +10,7 @@
 #include "aho_corasik.hpp"
 using namespace std;
 
-bool compare_results(vector<size_t>& a, vector<size_t> b) {
+bool compare_results(search_result& a, search_result& b) {
     if (a.size() != b.size()) {
         return false;
     }
@@ -26,7 +26,7 @@ int main() {
     string text = join(read_file("../assets/text.txt"), '\n');
     vector<string> dictionary = read_file("../assets/dictionary.txt");
 
-    vector<size_t> dumb_search_res, aho_corasik_search_res;
+    search_result dumb_search_res, aho_corasik_search_res;
     cout << measure_nanoseconds([&](){ dumb_search_res = dumb_search(text, dictionary); }) << '\n';
     cout << measure_nanoseconds([&](){ aho_corasik_search_res = aho_corasik_search(text, dictionary_automaton(dictionary)); }) << '\n';
     sort(dumb_search_res.begin(), dumb_search_res.end());
