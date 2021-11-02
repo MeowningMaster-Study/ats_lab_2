@@ -54,7 +54,7 @@ struct dictionary_automaton {
             if (v == root || v->p == root) {
                 v->link = root;
             } else {
-                v->link = go(link(v->p), v->pch);
+                v->link = go(link(v->p), v->pch + 'a');
             }
         }
         return v->link;
@@ -79,13 +79,16 @@ struct dictionary_automaton {
     }
 };
 
-vector<size_t> aho_corasik_search(const string& text, dictionary_automaton dictionary) {
-    vector<size_t> entries;
+search_result aho_corasik_search(const string& text, dictionary_automaton dictionary) {
+    search_result entries;
     vertex* v = dictionary.root;
     for (size_t i = 0; i < text.length(); i++) {
         v = dictionary.go(v, text[i]);
-        if (v->leaf) {
-            entries.push_back(i - v->len + 1);
+        vertex* x = v;
+        while (x->leaf) {
+            size_t pos = i - x->len + 1;
+            entries.push_back(make_tuple(pos, text.substr(pos, x->len)));
+            x = dictionary.link(x);
         }
     }
     return entries;
