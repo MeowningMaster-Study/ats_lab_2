@@ -1,30 +1,27 @@
 #pragma once
-#include <array>
 #include <vector>
 #include <string>
+#include <algorithm>
 using namespace std;
 
-const size_t k = 26;
-struct vertex {
-    array<vertex*, k> to = {0}, go = {0};
-    vertex* link = 0;
-    vertex* p;
-    size_t pch, len;
+const int k = 256;
+struct Vertex {
+    int next[k];
     bool leaf = false;
+    int p = -1;
+    char pch;
+    int link = -1;
+    int go[k];
+    string word;
 
-    vertex(size_t _pch, vertex* _p, size_t _len): pch(_pch), p(_p), len(_len) {}
+    Vertex(int p, char ch) : p(p), pch(ch) {
+        fill(begin(next), end(next), -1);
+        fill(begin(go), end(go), -1);
+    }
 };
 
 struct dictionary_automaton {
-    vertex* root;
-
-    void init() {
-        root = new vertex(-1, 0, 0);
-    }
-
-    dictionary_automaton() {
-        init();
-    }
+    vector<Vertex> t = {{-1, 0}};
 
     void fill(vector<string>& dictionary) {
         for (string word : dictionary) {
@@ -33,62 +30,57 @@ struct dictionary_automaton {
     }
 
     dictionary_automaton(vector<string>& dictionary) {
-        init();
         fill(dictionary);
     }
     
-    void add_word(string& word) {
-        vertex* v = root;
-        for (char ch : word) {
-            size_t c = ch - 'a';
-            if (!v->to[c]) {
-                v->to[c] = new vertex(c, v, v->len + 1);
-            }  
-            v = v->to[c];
-        }
-        v->leaf = true;
-    }
-
-    vertex* link(vertex* v) {
-        if (!v->link) {
-            if (v == root || v->p == root) {
-                v->link = root;
-            } else {
-                v->link = go(link(v->p), v->pch + 'a');
+    void add_word(string const& s) {
+        int v = 0;
+        for (char ch : s) {
+            if (t[v].next[ch] == -1) {
+                t[v].next[ch] = t.size();
+                t.emplace_back(v, ch);
             }
+            v = t[v].next[ch];
         }
-        return v->link;
+        t[v].leaf = true;
+        t[v].word = s;
     }
 
-    vertex* go(vertex* v, char ch) {
-        if (ch < 'a' || ch > 'z') {
-            return root;
+    int get_link(int v) {
+        if (t[v].link == -1) {
+            if (v == 0 || t[v].p == 0)
+                t[v].link = 0;
+            else
+                t[v].link = go(get_link(t[v].p), t[v].pch);
         }
-
-        size_t c = ch - 'a';
-        if (!v->go[c]) {
-            if (v->to[c]) {
-                v->go[c] = v->to[c];
-            } else if (v == root) {
-                v->go[c] = root;
-            } else {
-                v->go[c] = go(link(v), c);
-            }     
-        }
-        return v->go[c];
+        return t[v].link;
     }
+
+    int go(int v, char ch) {
+        if (t[v].go[ch] == -1) {
+            if (t[v].next[ch] != -1)
+                t[v].go[ch] = t[v].next[ch];
+            else
+                t[v].go[ch] = v == 0 ? 0 : go(get_link(v), ch);
+        }
+        return t[v].go[ch];
+    } 
 };
 
-search_result aho_corasik_search(const string& text, dictionary_automaton dictionary) {
+search_result aho_corasik_search(const string& text, dictionary_automaton d) {
     search_result entries;
-    vertex* v = dictionary.root;
+    auto v = 0;
     for (size_t i = 0; i < text.length(); i++) {
-        v = dictionary.go(v, text[i]);
-        vertex* x = v;
-        while (x->leaf) {
-            size_t pos = i - x->len + 1;
-            entries.push_back(make_tuple(pos, text.substr(pos, x->len)));
-            x = dictionary.link(x);
+        char c = text[i];
+        v = d.go(v, c);
+        for (int u = v; u != 0; u = d.get_link(u)) {
+            if (d.t[u].leaf) {
+                string word = d.t[u].word;
+                size_t len = word.length();
+                size_t pos = i - len + 1;
+
+                entries.push_back(make_tuple(pos, word));
+            }
         }
     }
     return entries;
