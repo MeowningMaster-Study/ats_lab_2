@@ -24,7 +24,7 @@ bool compare_results(search_result& a, search_result& b) {
 }
 
 int main() {
-    // зчитуємо тест та словник за файлів
+    // зчитуємо тест та словник з файлів
     string text = join(read_file("../assets/text.txt"), '\n');
     vector<string> dictionary = read_file("../assets/dictionary.txt");
 

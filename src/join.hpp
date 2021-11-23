@@ -3,6 +3,7 @@
 #include <string>
 using namespace std;
 
+// об'єднує строки в одну
 string join(const vector<string>& v, char c) {
     string s = "";
     auto i = v.begin();

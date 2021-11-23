@@ -4,6 +4,7 @@
 #include "search_result.hpp"
 using namespace std;
 
+// простий пошук
 search_result dumb_search(string& text, vector<string>& dictionary) {
     search_result entries;
     for (string word : dictionary) {
