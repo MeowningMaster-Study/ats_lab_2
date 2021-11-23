@@ -5,14 +5,15 @@
 using namespace std;
 
 const int k = 256;
+// вершина графу автомата
 struct Vertex {
-    int next[k];
-    bool leaf = false;
-    int p = -1;
-    char pch;
-    int link = -1;
-    int go[k];
-    string word;
+    int next[k]; // прямі переходи
+    bool leaf = false; // чи э кінцем слова
+    int p = -1; // батьківська вершина
+    char pch; // символ переходу
+    int link = -1; // суфіксне посилання
+    int go[k]; // збережені переходи
+    string word; // слово
 
     Vertex(int p, char ch) : p(p), pch(ch) {
         fill(begin(next), end(next), -1);
@@ -20,9 +21,12 @@ struct Vertex {
     }
 };
 
+// автомат пошуку
 struct dictionary_automaton {
+    // спочатку має тільки кореневу вершину
     vector<Vertex> t = {{-1, 0}};
 
+    // додавання словника
     void fill(vector<string>& dictionary) {
         for (string word : dictionary) {
             add_word(word);
@@ -33,6 +37,7 @@ struct dictionary_automaton {
         fill(dictionary);
     }
     
+    // додавання слова
     void add_word(string const& s) {
         int v = 0;
         for (char ch : s) {
@@ -46,6 +51,7 @@ struct dictionary_automaton {
         t[v].word = s;
     }
 
+    // ліниве обчислення суфіксного посилання
     int get_link(int v) {
         if (t[v].link == -1) {
             if (v == 0 || t[v].p == 0)
@@ -56,6 +62,7 @@ struct dictionary_automaton {
         return t[v].link;
     }
 
+    // ліниве обчислення переходу
     int go(int v, char ch) {
         if (t[v].go[ch] == -1) {
             if (t[v].next[ch] != -1)
@@ -67,6 +74,7 @@ struct dictionary_automaton {
     } 
 };
 
+// проходження тексту та застосування автомату пошуку для знаходження слів словника
 search_result aho_corasik_search(const string& text, dictionary_automaton d) {
     search_result entries;
     auto v = 0;
